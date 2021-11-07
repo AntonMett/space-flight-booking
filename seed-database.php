@@ -2,45 +2,62 @@
 
 require("db.php");
 $db = new DB();
-$db->createTable("price_list", "id VARCHAR(255) PRIMARY KEY, valid_until DATETIME");
+try {
+    $callFlightsApi = file_get_contents('https://cosmos-odyssey.azurewebsites.net/api/v1.0/TravelPrices');
+    $flightsData = json_decode($callFlightsApi);
+    $validUntil = strtotime($flightsData->validUntil);
+    $db->insert('price_lists', 'price_list_id, valid_until', [$flightsData->id, $validUntil]);
+} catch (Exception $e) {
+    echo "ERROR!: " . $e->getMessage() . "\n";
+}
 
-$callFlightsApi = file_get_contents('https://cosmos-odyssey.azurewebsites.net/api/v1.0/TravelPrices');
-$flightsData = json_decode($callFlightsApi);
 
-$dateTime = new DateTime($flightsData->validUntil);
-$validUntil = $dateTime->format("Y-m-d H:m:s");
+if (!empty($flightsData->legs)) {
+    foreach ($flightsData->legs as $route) {
+        $db->insert(
+            'routes',
+            'route_id,
+             route_info_id,
+              from_id,
+              from_name,
+              to_id,
+              to_name,
+              price_list_id,
+              valid_until',
+            [
+                $route->id,
+                $route->routeInfo->id,
+                $route->routeInfo->from->id,
+                $route->routeInfo->from->name,
+                $route->routeInfo->to->id,
+                $route->routeInfo->to->name,
+                $flightsData->id,
+                $validUntil
+            ]);
+        foreach ($route->providers as $provider) {
+            $flightStart = strtotime($provider->flightStart);
+            $flightEnd = strtotime($provider->flightEnd);
+            $db->insert(
+                "providers",
+                "provider_id,
+          provider_company_id,
+          provider_company_name,
+          provider_price,
+          provider_flight_start,
+          provider_flight_end,
+          route_id",
+                [
+                    $provider->id,
+                    $provider->company->id,
+                    $provider->company->name,
+                    $provider->price,
+                    $flightStart,
+                    $flightEnd,
+                    $route->id
+                ]
+            );
+        }
 
-$db->insert('price_list', 'id, valid_until', [$flightsData->id, $validUntil]);
-echo "<pre>";
-var_dump($validUntil);
-var_dump($flightsData->validUntil);
+    }
 
-//$from = $_POST['from'];
-//$to = $_POST['to'];
-//$date = $_POST['date'];
-//
-//$matchList = array();
-//$flightRoute = "";
-//
-//foreach ($flightsData->legs as $route) {
-//    if ($route->routeInfo->from->name == $from and $route->routeInfo->to->name == $to) {
-//        echo "Route match!" . "<br>";
-//        $flightRoute = $route;
-//        echo "<pre>";
-//        var_dump($flightRoute);
-//        if (isset($date)) {
-//            foreach ($route->providers as $provider) {
-//                $date1 = new DateTime($provider->flightStart);
-//                $flightDate = $date1->format("Y-m-d");
-//                if ($flightDate == $date) {
-//                    echo "Date match!" . "$flightDate" . "<br>";
-//                    echo "<pre>";
-//                    array_push($matchList, $provider);
-//                }
-//            }
-//        }
-//
-//    }
-//}
-//return $matchList;
-?>
+}

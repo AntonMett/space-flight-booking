@@ -22,11 +22,11 @@ class DB
             try {
                 $this->conn = new PDO("mysql:host={$this->servername};dbname={$this->dbName}", $this->username, $this->password);
                 $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            } catch (PDOException $exception) {
-                echo "Connection failed: " . $exception->getMessage();
+            } catch (PDOException $e) {
+                echo "Connection failed: " . $e->getMessage() . "\n";
             }
         } else {
-            echo "Error creating database: " . $this->conn->error;
+            echo "Error creating database: " . $this->conn->error . "\n";
         }
     }
 
@@ -36,18 +36,18 @@ class DB
             $sql = $this->conn->prepare("CREATE TABLE IF NOT EXISTS {$tableName} ({$columnProps})");
             $sql->execute();
         } catch (PDOException $exception) {
-            echo "Table creation failed: " . $exception->getMessage();
+            echo "Table creation failed: " . $exception->getMessage() . "\n";
         }
     }
 
     public function insert($table, $column, array $values)
     {
         try {
-            $placeHolder = implode(",", array_fill(0,count($values),"?"));
-            $sql = $this->conn->prepare("INSERT INTO {$table} ({$column}) VALUES({$placeHolder})");
+            $placeHolder = implode(",", array_fill(0, count($values), "?"));
+            $sql = $this->conn->prepare("INSERT IGNORE INTO {$table} ({$column}) VALUES({$placeHolder})");
             $sql->execute($values);
         } catch (PDOException $exception) {
-            echo "Value insertion into table failed: " . $exception->getMessage();
+            echo "Value insertion into table failed: " . $exception->getMessage() . "\n";
         }
     }
 }
