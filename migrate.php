@@ -8,8 +8,8 @@ try {
     $db->createTable(
         "price_lists",
         "price_list_id VARCHAR(200) NOT NULL PRIMARY KEY,
-  valid_until BIGINT NOT NULL,
-  reg_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+          valid_until BIGINT NOT NULL,
+          reg_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
   ");
 
     $db->createTable(
@@ -22,7 +22,7 @@ try {
           to_name VARCHAR(40),
           price_list_id VARCHAR(200),   
           valid_until BIGINT NOT NULL,
-          FOREIGN KEY (price_list_id) REFERENCES price_lists(price_list_id)
+          FOREIGN KEY (price_list_id) REFERENCES price_lists(price_list_id) ON DELETE CASCADE
           ");
 
     $db->createTable(
@@ -34,9 +34,42 @@ try {
           provider_flight_start BIGINT NOT NULL,
           provider_flight_end BIGINT NOT NULL,
           route_id VARCHAR(200),
-          FOREIGN KEY (route_id) REFERENCES routes(route_id)
+          FOREIGN KEY (route_id) REFERENCES routes(route_id) ON DELETE CASCADE
           ");
 
+
+    $db->createTable(
+        "reservations",
+        "reservation_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        first_name VARCHAR(100),
+        last_name VARCHAR(100),
+        total_price FLOAT,
+        total_travel_time BIGINT NOT NULL,
+        reg_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ");
+
+    $db->createTable(
+        "reservation_routes",
+        "flight_from VARCHAR(40),
+        flight_to VARCHAR(40),
+        provider VARCHAR(100),
+        reservation_id INT UNSIGNED,
+        FOREIGN KEY (reservation_id) REFERENCES reservations (reservation_id) ON DELETE CASCADE
+        ");
+
+//    $db->conn->prepare("
+//        CREATE OR REPLACE FUNCTION test_delete() RETURNS TRIGGER LANGUAGE plpgsql AS $$
+//        BEGIN
+//        IF(SELECT COUNT(*) FROM price_lists) > 15 THEN
+//            DELETE FROM price_lists WHERE reg_date <= (SELECT reg_date FROM price_list ORDER BY reg_date DESC limit 1 );
+//        END IF;
+//        RETURN NULL;
+//        END;
+//        $$;
+//
+//        CREATE TRIGGER delete_after_insert AFTER INSERT ON price_list
+//        FOR EACH ROW EXECUTE PROCEDURE test_delete();
+//    ")->execute();
     echo "MIGRATION SUCCESS!";
 } catch (Exception $e) {
     echo "ERROR WHILE MIGRATING: " . $e->getMessage(), "\n";

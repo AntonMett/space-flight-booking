@@ -6,7 +6,7 @@ class DB
     private $username = "root";
     private $password = "";
     private $dbName = "flights";
-    private $conn = "";
+    public $conn = "";
 
     function __construct()
     {
@@ -50,6 +50,7 @@ class DB
             echo "Value insertion into table failed: " . $exception->getMessage() . "\n";
         }
     }
+
 }
 
 
