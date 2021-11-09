@@ -57,17 +57,19 @@ try {
         FOREIGN KEY (reservation_id) REFERENCES reservations (reservation_id) ON DELETE CASCADE
         ");
 
-//    $db->conn->prepare("
-//                DELIMITER $$
-//        CREATE TRIGGER delete_pricelist_after_insert AFTER INSERT ON price_lists
-//                FOR EACH ROW
-//                BEGIN
-//        	        IF(SELECT COUNT(*) FROM price_lists) > 15 THEN
-//        		        DELETE FROM price_lists WHERE reg_date IS NOT NULL order by reg_date asc LIMIT 1;
-//                END IF;
-//            END$$
-//        DELIMITER ;
-//    ")->execute();
+    /* ----------CREATE TRIGGER ON price_lists table --------------*/
+
+    $db->conn->prepare("
+
+        CREATE TRIGGER delete_pricelist_after_insert AFTER INSERT ON price_lists
+                FOR EACH ROW
+                BEGIN
+        	        IF(SELECT COUNT(*) FROM price_lists) > 15 THEN
+        		        DELETE FROM price_lists WHERE reg_date IS NOT NULL order by reg_date asc LIMIT 1;
+                END IF;
+            END;
+
+    ")->execute();
 
     echo "MIGRATION SUCCESS!";
 } catch (Exception $e) {
