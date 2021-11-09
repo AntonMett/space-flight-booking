@@ -58,18 +58,17 @@ try {
         ");
 
 //    $db->conn->prepare("
-//        CREATE OR REPLACE FUNCTION test_delete() RETURNS TRIGGER LANGUAGE plpgsql AS $$
-//        BEGIN
-//        IF(SELECT COUNT(*) FROM price_lists) > 15 THEN
-//            DELETE FROM price_lists WHERE reg_date <= (SELECT reg_date FROM price_list ORDER BY reg_date DESC limit 1 );
-//        END IF;
-//        RETURN NULL;
-//        END;
-//        $$;
-//
-//        CREATE TRIGGER delete_after_insert AFTER INSERT ON price_list
-//        FOR EACH ROW EXECUTE PROCEDURE test_delete();
+//                DELIMITER $$
+//        CREATE TRIGGER delete_pricelist_after_insert AFTER INSERT ON price_lists
+//                FOR EACH ROW
+//                BEGIN
+//        	        IF(SELECT COUNT(*) FROM price_lists) > 15 THEN
+//        		        DELETE FROM price_lists WHERE reg_date IS NOT NULL order by reg_date asc LIMIT 1;
+//                END IF;
+//            END$$
+//        DELIMITER ;
 //    ")->execute();
+
     echo "MIGRATION SUCCESS!";
 } catch (Exception $e) {
     echo "ERROR WHILE MIGRATING: " . $e->getMessage(), "\n";
