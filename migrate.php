@@ -1,7 +1,5 @@
 <?php
-
-require("db.php");
-
+require 'db.php';
 $db = new DB();
 
 try {

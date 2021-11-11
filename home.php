@@ -10,15 +10,6 @@
             crossorigin="anonymous">
     </script>
     <script
-            src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"
-            integrity="sha512-T/tUfKSV1bihCnd+MxKD0Hm1uBBroVYBOYSk1knyvQ9VyZJpc/ALb4P0r6ubwVPSGB2GvjeoMAJJImBG12TiaQ=="
-            crossorigin="anonymous" referrerpolicy="no-referrer">
-    </script>
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css"
-          integrity="sha512-mSYUmp1HYZDFaVKK//63EcZq4iFWFjxSL+Z3T/aCt4IO9Cejm03q3NKKYN6pFQzY0SBOr8h+eCIAZHPXcpZaNw=="
-          crossorigin="anonymous" referrerpolicy="no-referrer"/>
-    <script
             src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js"
             integrity="sha384-+YQ4JLhjyBLPDQt//I+STsc9iw4uQqACwlvpslubQzn4u2UU2UFM80nGisd026JF"
             crossorigin="anonymous">
@@ -35,7 +26,7 @@
     </div>
 </header>
 <main>
-    <form action="seed-database.php" method="POST">
+    <form action="seed-database.php" id="request-flights-form" method="POST">
         <div class="container" id="search">
             <div class="input-group">
                 <select class="custom-select" id="inputGroupSelect01" name="from">
@@ -49,7 +40,7 @@
                     <option value="Uranus">Uranus</option>
                     <option value="Neptune">Neptune</option>
                 </select>
-                <select class="custom-select" id="inputGroupSelect01" name="to">
+                <select class="custom-select" id="inputGroupSelect02" name="to">
                     <option selected>To</option>
                     <option value="Mercury">Mercury</option>
                     <option value="Venus">Venus</option>
@@ -61,11 +52,38 @@
                     <option value="Neptune">Neptune</option>
                 </select>
 
-                <input placeholder="Flight Date" type="date" id="datepicker" name="date">
-                <button class="btn btn-primary ml-3">Search</button>
+                <button class="btn btn-primary ml-3" id="request-pricelist-btn">Search</button>
             </div>
         </div>
     </form>
+    <div class="offer-list container">
+        <ul class="list-group">
+            <div class="row container">
+                <li class="list-group-item col-sm-8">Cras justo odio</li><button class="btn btn-primary">HELLO</button>
+            </div>
+
+            <li class="list-group-item">Dapibus ac facilisis in</li>
+            <li class="list-group-item">Morbi leo risus</li>
+            <li class="list-group-item">Porta ac consectetur ac</li>
+            <li class="list-group-item">Vestibulum at eros</li>
+        </ul>
+    </div>
 </main>
+<!--<script type="text/javascript">-->
+<!--    $('#request-flights-form').submit(function (e) {-->
+<!--        e.preventDefault();-->
+<!--        let formData = {-->
+<!--            from: $("#inputGroupSelect01").val(),-->
+<!--            to: $("#inputGroupSelect02").val(),-->
+<!--            date: $("#datepicker").val(),-->
+<!--        };-->
+<!---->
+<!--        $.ajax({-->
+<!--            url: "seed-database.php",-->
+<!--            type: 'POST',-->
+<!--            data: formData,-->
+<!--        })-->
+<!--    })-->
+<!--</script>-->
 </body>
 </html>
