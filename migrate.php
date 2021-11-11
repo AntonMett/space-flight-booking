@@ -18,6 +18,7 @@ try {
           from_name VARCHAR(40),
           to_id VARCHAR(200),
           to_name VARCHAR(40),
+          route_distance INT,
           price_list_id VARCHAR(200),   
           valid_until BIGINT NOT NULL,
           FOREIGN KEY (price_list_id) REFERENCES price_lists(price_list_id) ON DELETE CASCADE
@@ -57,7 +58,8 @@ try {
 
     /* ----------CREATE TRIGGER ON price_lists table --------------*/
 
-    $db->conn->prepare("
+    try {
+        $db->conn->prepare("
 
         CREATE TRIGGER delete_pricelist_after_insert AFTER INSERT ON price_lists
                 FOR EACH ROW
@@ -68,8 +70,12 @@ try {
             END;
 
     ")->execute();
+    }catch (PDOException $exception){
+        echo "TRIGGER CREATION FAILED: " . $exception->getMessage() . "\n";
+    }
 
-    echo "MIGRATION SUCCESS!";
-} catch (Exception $e) {
-    echo "ERROR WHILE MIGRATING: " . $e->getMessage(), "\n";
+
+    echo "MIGRATION DONE!";
+} catch (Exception $exception) {
+    echo "ERROR WHILE MIGRATING: " . $exception->getMessage(), "\n";
 }

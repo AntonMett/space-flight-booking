@@ -7,8 +7,8 @@ try {
     $callFlightsApi = file_get_contents('https://cosmos-odyssey.azurewebsites.net/api/v1.0/TravelPrices');
     $flightsData = json_decode($callFlightsApi);
     $validUntil = strtotime($flightsData->validUntil);
-} catch (Exception $e) {
-    echo "ERROR!: " . $e->getMessage() . "\n";
+} catch (Exception $exception) {
+    echo "ERROR!: " . $exception->getMessage() . "\n";
 }
 
 /* ----------- CHECK IF valid price list is present in database, IF not then seed new data-------*/
@@ -27,6 +27,7 @@ if (count($result) == 0) {
                 from_name,
                 to_id,
                 to_name,
+                route_distance,
                 price_list_id,
                 valid_until',
                 [
@@ -36,6 +37,7 @@ if (count($result) == 0) {
                     $route->routeInfo->from->name,
                     $route->routeInfo->to->id,
                     $route->routeInfo->to->name,
+                    $route->routeInfo->distance,
                     $flightsData->id,
                     $validUntil
                 ]);
