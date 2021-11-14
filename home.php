@@ -21,7 +21,13 @@
 </head>
 <body>
 <header>
-    <div class="container text-center"><h1>Welcome traveler!</h1>
+    <div class="container-fluid text-center " style="background-image:
+     url('space.jpg');
+     background-size: cover;
+     background-position: bottom;
+     min-height: 50vh;
+
+"><h1>Welcome traveler!</h1>
         <h2>Let the journey begin!</h2>
     </div>
 </header>
@@ -56,17 +62,60 @@
             </div>
         </div>
     </form>
-    <div class="offer-list container">
-        <ul class="list-group">
-            <div class="row container">
-                <li class="list-group-item col-sm-8">Cras justo odio</li><button class="btn btn-primary">HELLO</button>
-            </div>
+    <div class="container pt-3 border">
 
-            <li class="list-group-item">Dapibus ac facilisis in</li>
-            <li class="list-group-item">Morbi leo risus</li>
-            <li class="list-group-item">Porta ac consectetur ac</li>
-            <li class="list-group-item">Vestibulum at eros</li>
-        </ul>
+        <table class="table table-striped table-hover table-sm" id="table">
+            <thead>
+            <tr>
+                <th>Company</th>
+                <th>Price</th>
+                <th>Route Length</th>
+                <th>Travel Time</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody id="tableBody">
+            <tr>
+                <td class="company">Company name</td>
+                <td class="price">1321321321</td>
+                <td class="route-length">1321321321</td>
+                <td class="travel-time">1321321321</td>
+                <td class="route-length">3243243242</td>
+                <td class="book-button">
+                    <button onclick="resetCalendar(), selectDateIndex(this)"type="button" data-toggle="modal"
+                            data-target="#myModal">Book Now</button>
+                </td>
+            </tr>
+
+            </tbody>
+            <tr class="table-primary">
+                <td >TOTAL:</td>
+                <td colspan="2" id="total"></td>
+            </tr>
+        </table>
+        <div class="modal fade" id="myModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Confirm your booking</h4>
+                        <button type="button" class="close"
+                                data-dismiss="modal">&times;
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="datepicker" class="container pt-3 d-flex justify-content-center"></div>
+                        <input type="hidden" id="my_hidden_input">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger"
+                                data-dismiss="modal">Dismiss</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal"
+                                id="savechangesbutton">Confirm Reservation</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
     </div>
 </main>
 <!--<script type="text/javascript">-->
