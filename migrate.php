@@ -1,4 +1,7 @@
 <?php
+
+/* ------------- Run this file to migrate tables to fresh db ---------- */
+
 require 'db.php';
 $db = new DB();
 
@@ -55,25 +58,6 @@ try {
         reservation_id INT UNSIGNED,
         FOREIGN KEY (reservation_id) REFERENCES reservations (reservation_id) ON DELETE CASCADE
         ");
-
-    /* ----------CREATE TRIGGER ON price_lists table --------------*/
-
-    try {
-        $db->conn->prepare("
-
-        CREATE TRIGGER delete_pricelist_after_insert AFTER INSERT ON price_lists
-                FOR EACH ROW
-                BEGIN
-        	        IF(SELECT COUNT(*) FROM price_lists) > 15 THEN
-        		        DELETE FROM price_lists WHERE reg_date IS NOT NULL order by reg_date asc LIMIT 1;
-                END IF;
-            END;
-
-    ")->execute();
-    }catch (PDOException $exception){
-        echo "TRIGGER CREATION FAILED: " . $exception->getMessage() . "\n";
-    }
-
 
     echo "MIGRATION DONE!";
 } catch (Exception $exception) {

@@ -32,7 +32,7 @@
     </div>
 </header>
 <main>
-    <form action="seed-database.php" id="request-flights-form" method="POST">
+    <form action="search-flights.php" id="request-flights-form" method="POST">
         <div class="container" id="search">
             <div class="input-group">
                 <select class="custom-select" id="inputGroupSelect01" name="from">
@@ -62,7 +62,31 @@
             </div>
         </div>
     </form>
-    <div class="container pt-3 border">
+</main>
+<script type="text/javascript">
+    $(function () {
+        console.log("ready!");
+        $.ajax({
+            url: "seed-database.php",
+            type: 'GET',
+        }).done(function () {
+            console.log('database seeded')
+        });
+        console.log('i am already here!');
+        $('#request-flights-form').on("submit", function (e) {
+            e.preventDefault();
+            let formData = {
+                from: $("#inputGroupSelect01").val(),
+                to: $("#inputGroupSelect02").val(),
+                date: $("#datepicker").val(),
+            };
+
+            $.ajax({
+                url: "search-flights.php",
+                type: 'POST',
+                data: formData,
+            }).done(function (data) {
+                $("main").append(`<div class="container pt-3 border" id="flights-result">
 
         <table class="table table-striped table-hover table-sm" id="table">
             <thead>
@@ -75,23 +99,8 @@
             </tr>
             </thead>
             <tbody id="tableBody">
-            <tr>
-                <td class="company">Company name</td>
-                <td class="price">1321321321</td>
-                <td class="route-length">1321321321</td>
-                <td class="travel-time">1321321321</td>
-                <td class="route-length">3243243242</td>
-                <td class="book-button">
-                    <button onclick="resetCalendar(), selectDateIndex(this)"type="button" data-toggle="modal"
-                            data-target="#myModal">Book Now</button>
-                </td>
-            </tr>
 
             </tbody>
-            <tr class="table-primary">
-                <td >TOTAL:</td>
-                <td colspan="2" id="total"></td>
-            </tr>
         </table>
         <div class="modal fade" id="myModal">
             <div class="modal-dialog">
@@ -108,31 +117,42 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger"
-                                data-dismiss="modal">Dismiss</button>
+                                data-dismiss="modal">Dismiss
+                        </button>
                         <button type="button" class="btn btn-primary" data-dismiss="modal"
-                                id="savechangesbutton">Confirm Reservation</button>
+                                id="savechangesbutton">Confirm Reservation
+                        </button>
                     </div>
 
                 </div>
             </div>
         </div>
-    </div>
-</main>
-<!--<script type="text/javascript">-->
-<!--    $('#request-flights-form').submit(function (e) {-->
-<!--        e.preventDefault();-->
-<!--        let formData = {-->
-<!--            from: $("#inputGroupSelect01").val(),-->
-<!--            to: $("#inputGroupSelect02").val(),-->
-<!--            date: $("#datepicker").val(),-->
-<!--        };-->
-<!---->
-<!--        $.ajax({-->
-<!--            url: "seed-database.php",-->
-<!--            type: 'POST',-->
-<!--            data: formData,-->
-<!--        })-->
-<!--    })-->
-<!--</script>-->
+    </div>`)
+                for (let i of data) {
+                    let travelTime = parseInt(i.provider_flight_end, 10) - parseInt(i.provider_flight_start, 10);
+                    console.log(travelTime);
+                    $("#tableBody").append(`<tr><td class="offer">${i.provider_company_name}</td>
+                    <td class="price">${i.provider_price}</td>
+                    <td class="route-length">${i.route_distance}</td>
+                    <td class="travel-time">${travelTime} Seconds</td>
+                    <td class="book-button">
+                        <button onclick="resetCalendar(), selectDateIndex(this)" type="button" data-toggle="modal"
+                                data-target="#myModal">Book Now
+                        </button>
+                    </td>
+                </tr>`);
+                }
+            }).fail(function () {
+                alert('Sorry! No flights awailable for this route!')
+            })
+        })
+    });
+
+</script>
 </body>
 </html>
+<?php
+
+include 'seed-database.php'
+
+?>

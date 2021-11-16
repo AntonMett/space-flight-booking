@@ -1,3 +1,3 @@
 <?php
-include('home.php');
+require 'home.php';
 

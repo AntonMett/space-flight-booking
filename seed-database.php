@@ -1,7 +1,7 @@
 <?php
 
 require 'db.php';
-$db=new DB();
+$db = new DB();
 
 try {
     $callFlightsApi = file_get_contents('https://cosmos-odyssey.azurewebsites.net/api/v1.0/TravelPrices');
@@ -11,7 +11,9 @@ try {
     echo "ERROR!: " . $exception->getMessage() . "\n";
 }
 
+
 /* ----------- CHECK IF valid price list is present in database, IF not then seed new data-------*/
+
 
 $sql = "SELECT * FROM price_lists WHERE valid_until='$validUntil'";
 $result = $db->conn->query($sql)->fetchAll();
@@ -68,5 +70,22 @@ if (count($result) == 0) {
         }
 
     }
+
+    /* --- Check how many pricelists are in DB, if more thant 15 then delete oldest list.
+    Adding TRIGGER to DB doesnt work because we are not allowed to do same table updates where trigger is registered.
+    General error: 1442 Can't update table 'price_lists' in stored function/trigger because it is already used by
+    statement which invoked this stored function/trigger --------- */
+
+
+    $sql = "SELECT * FROM price_lists";
+    $result = $db->conn->query($sql)->fetchAll();
+    if (count($result) >= 16) {
+        $sql = "DELETE FROM price_lists WHERE reg_date IS NOT NULL order by reg_date asc LIMIT 1";
+        $db->conn->query($sql)->execute();
+    }
 }
-require 'search-flights.php';
+
+
+
+
+
