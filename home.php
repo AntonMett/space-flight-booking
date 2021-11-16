@@ -18,22 +18,18 @@
           href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
           integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
           crossorigin="anonymous">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <header>
-    <div class="container-fluid text-center " style="background-image:
-     url('space.jpg');
-     background-size: cover;
-     background-position: bottom;
-     min-height: 50vh;
-
-"><h1>Welcome traveler!</h1>
+    <div class="container-fluid text-center pt-5 pb-5"><h1>Welcome traveler!</h1>
         <h2>Let the journey begin!</h2>
     </div>
 </header>
 <main>
-    <form action="search-flights.php" id="request-flights-form" method="POST">
-        <div class="container" id="search">
+
+    <div class="container main-content">
+        <form action="search-flights.php" id="request-flights-form" method="POST">
             <div class="input-group">
                 <select class="custom-select" id="inputGroupSelect01" name="from">
                     <option selected>From</option>
@@ -60,99 +56,10 @@
 
                 <button class="btn btn-primary ml-3" id="request-pricelist-btn">Search</button>
             </div>
-        </div>
-    </form>
+        </form>
+    </div>
+
 </main>
-<script type="text/javascript">
-    $(function () {
-        console.log("ready!");
-        $.ajax({
-            url: "seed-database.php",
-            type: 'GET',
-        }).done(function () {
-            console.log('database seeded')
-        });
-        console.log('i am already here!');
-        $('#request-flights-form').on("submit", function (e) {
-            e.preventDefault();
-            let formData = {
-                from: $("#inputGroupSelect01").val(),
-                to: $("#inputGroupSelect02").val(),
-                date: $("#datepicker").val(),
-            };
-
-            $.ajax({
-                url: "search-flights.php",
-                type: 'POST',
-                data: formData,
-            }).done(function (data) {
-                $("main").append(`<div class="container pt-3 border" id="flights-result">
-
-        <table class="table table-striped table-hover table-sm" id="table">
-            <thead>
-            <tr>
-                <th>Company</th>
-                <th>Price</th>
-                <th>Route Length</th>
-                <th>Travel Time</th>
-                <th>Action</th>
-            </tr>
-            </thead>
-            <tbody id="tableBody">
-
-            </tbody>
-        </table>
-        <div class="modal fade" id="myModal">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title">Confirm your booking</h4>
-                        <button type="button" class="close"
-                                data-dismiss="modal">&times;
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div id="datepicker" class="container pt-3 d-flex justify-content-center"></div>
-                        <input type="hidden" id="my_hidden_input">
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-danger"
-                                data-dismiss="modal">Dismiss
-                        </button>
-                        <button type="button" class="btn btn-primary" data-dismiss="modal"
-                                id="savechangesbutton">Confirm Reservation
-                        </button>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </div>`)
-                for (let i of data) {
-                    let travelTime = parseInt(i.provider_flight_end, 10) - parseInt(i.provider_flight_start, 10);
-                    console.log(travelTime);
-                    $("#tableBody").append(`<tr><td class="offer">${i.provider_company_name}</td>
-                    <td class="price">${i.provider_price}</td>
-                    <td class="route-length">${i.route_distance}</td>
-                    <td class="travel-time">${travelTime} Seconds</td>
-                    <td class="book-button">
-                        <button onclick="resetCalendar(), selectDateIndex(this)" type="button" data-toggle="modal"
-                                data-target="#myModal">Book Now
-                        </button>
-                    </td>
-                </tr>`);
-                }
-            }).fail(function () {
-                alert('Sorry! No flights awailable for this route!')
-            })
-        })
-    });
-
-</script>
+<script type="text/javascript" src="script.js"></script>
 </body>
 </html>
-<?php
-
-include 'seed-database.php'
-
-?>

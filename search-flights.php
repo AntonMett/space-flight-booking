@@ -15,6 +15,7 @@ $to = $_POST["to"];
 
 $sql = "SELECT 
        price_lists.valid_until,
+       price_lists.price_list_id,
        routes.from_name,
        routes.to_name,
        providers.provider_company_name,
@@ -30,12 +31,11 @@ $sql = "SELECT
        INNER JOIN providers ON providers.route_id = routes.route_id  ";
 
 $results = $db->conn->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+$arr = ["price_list_id"=>$results[0]["price_list_id"], "valid_until"=>$results[0]["valid_until"], "data"=>$results];
 
-if ($results) {
-    header('Content-Type: application/json');
-    $json_string = json_encode($results);
-    echo $json_string;
-}
+$json_string = json_encode($arr);
+header("Content-Type: application/json");
+echo $json_string;
 
 
 
