@@ -5,12 +5,12 @@ $db = new DB();
 
 try {
     $callFlightsApi = file_get_contents('https://cosmos-odyssey.azurewebsites.net/api/v1.0/TravelPrices');
-    $flightsData = json_decode($callFlightsApi);
-    $validUntil = strtotime($flightsData->validUntil);
 } catch (Exception $exception) {
     echo "ERROR!: " . $exception->getMessage() . "\n";
 }
 
+$flightsData = json_decode($callFlightsApi);
+$validUntil = $flightsData->validUntil;
 
 /* ----------- CHECK IF valid price list is present in database, IF not then seed new data-------*/
 
@@ -44,8 +44,8 @@ if (count($result) == 0) {
                     $validUntil
                 ]);
             foreach ($route->providers as $provider) {
-                $flightStart = strtotime($provider->flightStart);
-                $flightEnd = strtotime($provider->flightEnd);
+                $flightStart = $provider->flightStart;
+                $flightEnd = $provider->flightEnd;
                 $db->insert(
                     "providers",
                     "provider_id,

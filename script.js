@@ -50,6 +50,17 @@ function sortTable(n) {
     }
 }
 
+function timeConverter(time){
+    let gmtTime= new Date(time).toUTCString();
+    return gmtTime;
+}
+
+function timeToUnix(time){
+    let unixTime = new Date(time).getTime();
+    return parseInt(unixTime);
+}
+
+
 function searchFlight() {
     $(function () {
 
@@ -69,9 +80,9 @@ function searchFlight() {
                 type: 'POST',
                 data: formData,
             }).done(function (data) {
-                let priceListId = data["price_list_id"]
-                let priceListIdSelector = `#${priceListId}`;
-                let validUntil = parseInt(data["valid_until"]);
+                let offerId = data["price_list_id"]+"-"+data["route_from"]+"-"+data["route_to"];
+                let priceListIdSelector = `#${offerId}`;
+                let validUntil = timeToUnix(data["valid_until"]);
                 if ($(priceListIdSelector).length == 0) {
 
                     $(".main-content").append(
@@ -79,15 +90,17 @@ function searchFlight() {
                             <p id="timer"></p>
                         </div>
 
-                        <div class="container border mt-5 pt-5 pb-5 mb-5" id="${priceListId}">
+                        <div class="container border mt-5 pt-5 pb-5 mb-5" id="${offerId}">
                              <table class="table table-striped table-hover table-sm" id="myTable">
                                 <thead>
                                     <tr>
                                     <th onclick="sortTable(0)" class="clickableTh">Company</th>
                                     <th onclick="sortTable(1)" class="clickableTh">Price</th>
                                     <th onclick="sortTable(2)" class="clickableTh">Route Length</th>
-                                    <th onclick="sortTable(3)" class="clickableTh">Travel Time</th>
-                                    <th ">Action</th>
+                                    <th>Departure</th>
+                                    <th>Arrival</th>
+                                    <th onclick="sortTable(5)" class="clickableTh">Travel Time</th>
+                                    <th>Action</th>
                                     </tr>
                                 </thead>
                              <tbody id="tableBody"></tbody>
@@ -100,8 +113,9 @@ function searchFlight() {
                                         <button type="button" class="close"data-dismiss="modal">&times;</button>
                         </div>
                         <div class="modal-body">
+                            <form>
                             <div id="datepicker" class="container pt-3 d-flex justify-content-center"></div>
-                            <input type="hidden" id="my_hidden_input">
+                            </form>  
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-danger" data-dismiss="modal">Dismiss</button>
@@ -115,23 +129,28 @@ function searchFlight() {
         </div>`)
 
 
-                    setInterval(function () {
-                        let seconds = Math.floor(new Date().getTime() / 1000);
-                        let timeLeft = validUntil - seconds;
+                   let timer = setInterval(function () {
+                        let seconds = new Date().getTime();
+                        let timeLeft = Math.floor((validUntil - seconds) / 1000 );
                         $("#timer").html('Offer ends in: ' + timeLeft + ' seconds.');
                         if (timeLeft <= 0) {
-                            clearInterval(this);
+                            clearInterval(timer);
                             $("#timer").html('Offer is EXPIRED!');
+                            location.reload();
                         }
                     }, 1000);
                     for (let i of data["data"]) {
                         let travelTime = parseInt(i.provider_flight_end, 10) - parseInt(i.provider_flight_start, 10);
+                        let travelStart = timeConverter(i.provider_flight_start);
+                        let travelEnd = timeConverter(i.provider_flight_end);
                         $("#tableBody").append(`<tr><td class="offer">${i.provider_company_name}</td>
                     <td class="price">${i.provider_price}</td>
                     <td class="route-length">${i.route_distance}</td>
+                    <td class="route-start">${travelStart}</td>
+                    <td class="route-end">${travelEnd}</td>
                     <td class="travel-time">${travelTime} Seconds</td>
                     <td class="book-button">
-                        <button onclick="resetCalendar(), selectDateIndex(this)" type="button" data-toggle="modal"
+                        <button onclick="resetCalendar()" type="button" data-toggle="modal"
                                 data-target="#myModal">Book Now
                         </button>
                     </td>
@@ -146,3 +165,7 @@ function searchFlight() {
 }
 
 searchFlight();
+
+function resetCalendar() {
+    $('#datepicker').datepicker();
+}
