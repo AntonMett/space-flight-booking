@@ -29,8 +29,8 @@ try {
 
     $db->createTable(
         "providers",
-        "provider_id VARCHAR(200) PRIMARY KEY,
-          provider_company_id VARCHAR(200),
+        "flight_id VARCHAR(200) PRIMARY KEY,
+          company_id VARCHAR(200),
           provider_company_name VARCHAR(100),
           provider_price FLOAT,
           provider_flight_start VARCHAR(40) NOT NULL,

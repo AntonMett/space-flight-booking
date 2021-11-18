@@ -48,8 +48,8 @@ if (count($result) == 0) {
                 $flightEnd = $provider->flightEnd;
                 $db->insert(
                     "providers",
-                    "provider_id,
-                    provider_company_id,
+                    "flight_id,
+                    company_id,
                     provider_company_name,
                     provider_price,
                     provider_flight_start,

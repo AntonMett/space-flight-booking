@@ -18,6 +18,7 @@ $sql = "SELECT
        price_lists.price_list_id,
        routes.from_name,
        routes.to_name,
+       providers.flight_id,
        providers.provider_company_name,
        providers.provider_price,
        providers.provider_flight_start,
