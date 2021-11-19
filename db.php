@@ -11,23 +11,15 @@ class DB
     function __construct()
     {
         /*
-             CHECK IF DATABASE EXISTS IF NOT CREATE ONE.
+                    CONNECT TO DB USING PDO
         */
-        $this->conn = new mysqli($this->servername, $this->username, $this->password);
-        $sql = "CREATE DATABASE IF NOT EXISTS {$this->dbName}";
-        if ($this->conn->query($sql) === TRUE) {
-            /*
-                        CONNECT TO DB USING PDO
-            */
-            try {
-                $this->conn = new PDO("mysql:host={$this->servername};dbname={$this->dbName}", $this->username, $this->password);
-                $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            } catch (PDOException $e) {
-                echo "Connection failed: " . $e->getMessage() . "\n";
-            }
-        } else {
-            echo "Error creating database: " . $this->conn->error . "\n";
+        try {
+            $this->conn = new PDO("mysql:host={$this->servername};dbname={$this->dbName}", $this->username, $this->password);
+            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        } catch (PDOException $e) {
+            echo "Connection failed: " . $e->getMessage() . "\n";
         }
+
     }
 
     public function createTable($tableName, $columnProps)
