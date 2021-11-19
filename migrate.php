@@ -42,22 +42,16 @@ try {
 
     $db->createTable(
         "reservations",
-        "reservation_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        "id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         first_name VARCHAR(100),
         last_name VARCHAR(100),
+        route VARCHAR(80),
+        provider VARCHAR(100),
         total_price FLOAT,
         total_travel_time INT,
         reg_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         ");
 
-    $db->createTable(
-        "reservation_routes",
-        "flight_from VARCHAR(40),
-        flight_to VARCHAR(40),
-        provider VARCHAR(100),
-        reservation_id INT UNSIGNED,
-        FOREIGN KEY (reservation_id) REFERENCES reservations (reservation_id) ON DELETE CASCADE
-        ");
 
     echo "MIGRATION DONE!";
 } catch (Exception $exception) {

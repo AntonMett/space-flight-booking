@@ -71,6 +71,33 @@ function seedDatabase() {
     })
 }
 
+
+function makeReservation(validUntil) {
+
+    $("#reservation-button").on("click", function () {
+
+        let formData = {
+            fname: $("#fname").val(),
+            lname: $("#lname").val(),
+            route: $("#route").val(),
+            price: $("#price").val(),
+            travel_time: $("#travel-time").val(),
+            provider_name: $("#company").val()
+        }
+
+        if (validUntil <= new Date().getTime()) {
+            alert("Oops your offer is not valid anymore, please reload page and try again!")
+        } else {
+            $.ajax({
+                url: "make-reservation.php",
+                type: 'POST',
+                data: formData,
+            })
+        }
+
+    })
+}
+
 function submitButton() {
     seedDatabase();
     $('#request-flights-form').on("submit", function (e) {
@@ -85,21 +112,31 @@ function submitButton() {
             type: 'POST',
             data: formData,
         }).done(function (data) {
-            let offerId = data["price_list_id"] + "-" + data["route_from"] + "-" + data["route_to"];
+            let offerId = data.price_list_id + "-" + data.route_from + "-" + data.route_to;
             let offerIdSelector = `#${offerId}`;
-            let validUntil = timeToUnix(data["valid_until"]);
-            let comName = "";
+            let validUntil = timeToUnix(data.valid_until);
+            let timer = setInterval(function () {
+                let seconds = new Date().getTime();
+                let timeLeft = Math.floor((validUntil - seconds) / 1000);
+                $("#timer").html('Offer ends in: ' + timeLeft + ' seconds.');
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    $("#timer").html('Offer is EXPIRED!');
+                    seedDatabase();
+                }
+            }, 1000);
+
 
             if ($('.offer-table').length == 0) {
                 $(".main-content").append(`
-                        <div class="container border mt-5 pt-5 pb-5 mb-5 offer-table" xmlns="http://www.w3.org/1999/html">
+                        <div class="container border mt-5 pt-5 pb-5 mb-5 offer-table">
                         <div class="container mt-5 mb-5">
                             <p id="timer"></p>
                         </div>
-                        <div id="${offerId}">
+                        
                         
                              <table class="table table-striped table-hover table-sm" id="myTable">
-                                <thead>
+                                <thead class="table-head" data="${offerId}">
                                     <tr>
                                     <th onclick="sortTable(0)" class="clickableTh">Company</th>
                                     <th onclick="sortTable(1)" class="clickableTh">Price</th>
@@ -121,17 +158,20 @@ function submitButton() {
                         </div>
                         <div class="modal-body">
                             <form action="#" id="make-reservation" method="POST">
-                                <input type="text" id="fname" name="fname" placeholder="Name"><br><br>
-                                <input type="text" id="lname" name="lname" placeholder="Lastname"><br><br>
-                                <input type="text" id="travel-route" name="travel-route" value="">
-                                <input type="text" id="travel-price" name="travel-price" value="">
-                                <input type="text" id="travel-time" name="travel-time" value="">
-                                <input type="text" id="company-name" name="company-name" value="">
+                                <input type="text" class="container-fluid" id="fname" name="fname" 
+                                placeholder="Name" required><br><br>
+                                <input type="text" id="lname" name="lname" class="container-fluid" 
+                                placeholder="Lastname" required><br><br>
+                                <input type="hidden" id="route"  value="" >
+                                <input type="hidden" id="price"  value="" >
+                                <input type="hidden" id="travel-time"  value="" >
+                                <input type="hidden" id="company"  value="" >
+
                             </form> 
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-danger" data-dismiss="modal">Dismiss</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" id="reservation-button">
+                            <button type="button" class="btn btn-primary" id="reservation-button" data-dismiss="modal">
                             Confirm Reservation
                             </button>
                         </div>
@@ -139,22 +179,10 @@ function submitButton() {
                         </div>
                         </div>
                         </div>
-                        </div>`);
+                        `);
 
 
-                let timer = setInterval(function () {
-                    let seconds = new Date().getTime();
-                    let timeLeft = Math.floor((validUntil - seconds) / 1000);
-                    $("#timer").html('Offer ends in: ' + timeLeft + ' seconds.');
-                    if (timeLeft <= 0) {
-                        clearInterval(timer);
-                        $("#timer").html('Offer is EXPIRED!');
-                        seedDatabase();
-                    }
-                }, 1000);
-
-
-                for (let i of data["data"]) {
+                for (let i of data.data) {
                     let travelTime = timeToUnix(i.provider_flight_end) - timeToUnix(i.provider_flight_start);
                     let travelStart = timeConverter(i.provider_flight_start);
                     let travelEnd = timeConverter(i.provider_flight_end);
@@ -168,32 +196,33 @@ function submitButton() {
                             <td class="route-end">${travelEnd}</td>
                             <td class="travel-time">${Math.floor(travelTime) / 1000} Seconds</td>
                             <td class="book-button">
-                            <button type="button" class="btn btn-primary mybutton" data-toggle="modal"
+                            <button type="button" class="btn btn-primary book-button" data-toggle="modal"
                                 data-target="#myModal">Book Now
                             </button>
                             </td>
                             </tr>`);
                 }
 
-                $(".mybutton").on("click", function () {
-                    let flightRoute = $(this).parents('.table-row').children('.price').html();
-                    let flightPrice = $(this).parents('.table-row').children('.price').html();
-                    let flightTravelTime = $(this).parents('.table-row').children('.price').html();
-                    let companyName = $(this).parents('.table-row').children('.price').html();
-                    $("#com-name").attr("value", myRowValue);
-                    console.log(comName)
-                })
+                $(".book-button").on("click", function () {
+                    let flightId = $(this).parents('.table-row').attr("id");
+                    for (i of data.data) {
+                        if (i.flight_id == flightId) {
+                            let travelTime = timeToUnix(i.provider_flight_end) - timeToUnix(i.provider_flight_start)
+                            $("#route").val(i.from_name + "-" + i.to_name);
+                            $("#price").val(i.provider_price);
+                            $("#travel-time").val(travelTime);
+                            $("#company").val(i.provider_company_name);
 
+                        }
+                    }
+                })
+                makeReservation(validUntil);
             } else {
 
-                if ($(offerIdSelector).length == 0) {
-                    $(".offer-table").empty().append(`
-                        <div id="${offerId}">
-                        <div class="container mt-5 mb-5">
-                            <p id="timer"></p>
-                        </div>
-                             <table class="table table-striped table-hover table-sm" id="myTable">
-                                <thead>
+                if ($(".table-head").attr("data") != offerId) {
+                    $("#myTable").empty();
+                    $("#myTable").append(`
+                                <thead class="table-head" data="${offerId}">
                                     <tr>
                                     <th onclick="sortTable(0)" class="clickableTh">Company</th>
                                     <th onclick="sortTable(1)" class="clickableTh">Price</th>
@@ -204,52 +233,43 @@ function submitButton() {
                                     <th>Action</th>
                                     </tr>
                                 </thead>
-                             <tbody id="tableBody"></tbody>
-                             </table>
-                        <div class="modal fade" id="myModal">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h4 class="modal-title">Confirm your booking</h4>
-                                        <button type="button" class="close"data-dismiss="modal">&times;</button>
-                        </div>
-                        <div class="modal-body">
-                            <form action="#" id="make-reservation" method="POST">
-                                <input type="text" id="fname" name="fname" placeholder="Name"><br><br>
-                                <input type="text" id="lname" name="lname" placeholder="Lastname"><br><br>
-                                <input type="text" id="custId" name="custId" value="3487">
-                            </form> 
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-danger" data-dismiss="modal">Dismiss</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal" id="savechangesbutton">
-                            Confirm Reservation
-                            </button>
-                        </div>
-                        </div>
-                        </div>
-                        </div>
-                        </div>`);
+                                <tbody id="tableBody"></tbody>
+                                            `);
 
 
-                    for (let i of data["data"]) {
+                    for (let i of data.data) {
+
                         let travelTime = timeToUnix(i.provider_flight_end) - timeToUnix(i.provider_flight_start);
                         let travelStart = timeConverter(i.provider_flight_start);
                         let travelEnd = timeConverter(i.provider_flight_end);
                         $("#tableBody").append(`
-                                <tr><td class="offer">${i.provider_company_name}</td>
-                                    <td class="price">${i.provider_price}</td>
-                                    <td class="route-length">${i.route_distance}</td>
-                                    <td class="route-start">${travelStart}</td>
-                                    <td class="route-end">${travelEnd}</td>
-                                    <td class="travel-time">${Math.floor(travelTime) / 1000} Seconds</td>
-                                    <td class="book-button">
-                                    <button type="button" data-toggle="modal"
-                                    data-target="#myModal">Book Now
-                                    </button>
+                                <tr class="table-row" id="${i.flight_id}">
+                            <td class="offer-company">${i.provider_company_name}</td>
+                            <td class="price">${i.provider_price}</td>
+                            <td class="route-length">${i.route_distance}</td>
+                            <td class="route-start">${travelStart}</td>
+                            <td class="route-end">${travelEnd}</td>
+                            <td class="travel-time">${Math.floor(travelTime) / 1000} Seconds</td>
+                            <td class="book-button">
+                            <button type="button" class="btn btn-primary book-button" data-toggle="modal"
+                                data-target="#myModal">Book Now
+                            </button>
                                     </td>
                                 </tr>`);
                     }
+                    $(".book-button").on("click", function () {
+                        let flightId = $(this).parents('.table-row').attr("id");
+                        for (i of data.data) {
+                            if (i.flight_id == flightId) {
+                                let travelTime = timeToUnix(i.provider_flight_end) - timeToUnix(i.provider_flight_start)
+                                $("#route").val(i.from_name + "-" + i.to_name);
+                                $("#price").val(i.provider_price);
+                                $("#travel-time").val(travelTime);
+                                $("#company").val(i.provider_company_name);
+
+                            }
+                        }
+                    })
                 }
             }
         }).fail(function () {

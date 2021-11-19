@@ -29,7 +29,7 @@
 <main>
 
     <div class="container main-content">
-        <form action="search-flights.php" id="request-flights-form" method="POST">
+        <form action="#" id="request-flights-form" method="POST">
             <div class="input-group">
                 <select class="custom-select" id="inputGroupSelect01" name="from">
                     <option selected>From</option>
