@@ -3,14 +3,17 @@
 require 'db.php';
 $db = new DB();
 
-try {
-    $callFlightsApi = file_get_contents('https://cosmos-odyssey.azurewebsites.net/api/v1.0/TravelPrices');
-} catch (Exception $exception) {
-    echo "ERROR!: " . $exception->getMessage() . "\n";
-}
 
-$flightsData = json_decode($callFlightsApi);
+$url = "https://cosmos-odyssey.azurewebsites.net/api/v1.0/TravelPrices";
+
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($ch, CURLOPT_URL, $url);
+$response = curl_exec($ch);
+
+$flightsData = json_decode($response);
 $validUntil = $flightsData->validUntil;
+
 
 /* ----------- CHECK IF valid price list is present in database, IF not then seed new data-------*/
 

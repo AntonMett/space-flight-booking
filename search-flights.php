@@ -2,13 +2,13 @@
 require 'db.php';
 $db = new DB();
 
-try {
-    $callFlightsApi = file_get_contents('https://cosmos-odyssey.azurewebsites.net/api/v1.0/TravelPrices');
-} catch (Exception $exception) {
-    echo "ERROR!: " . $exception->getMessage() . "\n";
-}
+$url = "https://cosmos-odyssey.azurewebsites.net/api/v1.0/TravelPrices";
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($ch, CURLOPT_URL, $url);
+$response = curl_exec($ch);
 
-$flightsData = json_decode($callFlightsApi);
+$flightsData = json_decode($response);
 $validUntil = $flightsData->validUntil;
 $from = htmlspecialchars($_POST["from"]);
 $to = htmlspecialchars($_POST["to"]);
@@ -44,5 +44,3 @@ $json_string = json_encode($arr);
 header("Content-Type: application/json");
 echo $json_string;
 
-
-die();
